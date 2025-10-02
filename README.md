@@ -16,7 +16,8 @@ Permite registro de diários, avaliações emocionais, centros de apoio e contro
 
 ## ⚙️ Arquitetura
 
-```        [Mobile App / Frontend]
+```        
+        [Mobile App / Frontend]
                   |
                   v
          ┌───────────────────┐
