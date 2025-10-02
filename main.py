@@ -115,6 +115,16 @@ def delete(collection, id: str):
         raise HTTPException(404, "Não encontrado")
     return {"mensagem": "Deletado"}
 
+# ---- Logger ----
+def registrar_atividade(user_id: str, acao: str, detalhes: str = ""):
+    log = {
+        "user_id": user_id,
+        "acao": acao,
+        "detalhes": detalhes,
+        "timestamp": datetime.utcnow()
+    }
+    db["logs"].insert_one(log)
+
 # ---- Auth Helpers ----
 def get_user_by_email(email: str):
     return db["users"].find_one({"email": email})
@@ -158,6 +168,7 @@ def register(user: UserIn):
     user_dict["password_hash"] = hashed
     user_dict["created_at"] = datetime.utcnow()
     user_id = create(db["users"], user_dict)["id"]
+    registrar_atividade(user_id, "registro_usuario", f"Usuário {user.email} registrado")
     return {"id": user_id}
 
 @app.post(f"{API_PREFIX}/auth/token", response_model=Token)
@@ -166,6 +177,7 @@ def login(form: OAuth2PasswordRequestForm = Depends()):
     if not user:
         raise HTTPException(401, "Email ou senha incorretos")
     token = create_access_token({"sub": user["email"]})
+    registrar_atividade(str(user["_id"]), "login", f"Usuário {user['email']} logado")
     return {"access_token": token}
 
 @app.get(f"{API_PREFIX}/me", response_model=UserOut)
@@ -174,21 +186,25 @@ async def me(current_user: dict = Depends(get_current_user)):
 
 # ---- Users ----
 @app.get(f"{API_PREFIX}/users")
-def users(_current_user: dict = Depends(get_current_user)):
+def users(current_user: dict = Depends(get_current_user)):
+    registrar_atividade(current_user["id"], "listar_usuarios")
     return list_all(db["users"])
 
 @app.get(f"{API_PREFIX}/users/{{id}}")
-def user(id: str, _current_user: dict = Depends(get_current_user)):
+def user(id: str, current_user: dict = Depends(get_current_user)):
+    registrar_atividade(current_user["id"], "visualizar_usuario", f"ID {id}")
     return read(db["users"], id)
 
 @app.put(f"{API_PREFIX}/users/{{id}}")
-def update_user(id: str, user: UserIn, _current_user: dict = Depends(get_current_user)):
+def update_user(id: str, user: UserIn, current_user: dict = Depends(get_current_user)):
     data = user.dict()
     data["password_hash"] = hash_password(data.pop("senha"))
+    registrar_atividade(current_user["id"], "editar_usuario", f"ID {id}")
     return update(db["users"], id, data)
 
 @app.delete(f"{API_PREFIX}/users/{{id}}", status_code=204)
-def delete_user(id: str, _current_user: dict = Depends(get_current_user)):
+def delete_user(id: str, current_user: dict = Depends(get_current_user)):
+    registrar_atividade(current_user["id"], "deletar_usuario", f"ID {id}")
     delete(db["users"], id)
 
 # ---- Diaries ----
@@ -196,37 +212,44 @@ def delete_user(id: str, _current_user: dict = Depends(get_current_user)):
 def create_diary(diary: Diary, current_user: dict = Depends(get_current_user)):
     if diary.user_id != current_user["id"]:
         raise HTTPException(403, "Apenas seu próprio diário")
+    registrar_atividade(current_user["id"], "criar_diario")
     return create(db["diaries"], diary.dict())
 
 @app.get(f"{API_PREFIX}/diaries/user/{{user_id}}")
 def user_diaries(user_id: str, current_user: dict = Depends(get_current_user)):
     if user_id != current_user["id"]:
         raise HTTPException(403, "Acesso negado")
+    registrar_atividade(current_user["id"], "listar_diarios")
     return [serialize(d) for d in db["diaries"].find({"user_id": user_id})]
 
 # ---- Emotions ----
 @app.post(f"{API_PREFIX}/emotions", status_code=201)
-def create_emotion(emotion: Emotion, _current_user: dict = Depends(get_current_user)):
+def create_emotion(emotion: Emotion, current_user: dict = Depends(get_current_user)):
+    registrar_atividade(current_user["id"], "criar_emocao")
     return create(db["emotions"], emotion.dict())
 
 @app.get(f"{API_PREFIX}/emotions/user/{{user_id}}")
 def user_emotions(user_id: str, current_user: dict = Depends(get_current_user)):
     if user_id != current_user["id"]:
         raise HTTPException(403, "Acesso negado")
+    registrar_atividade(current_user["id"], "listar_emocoes")
     return [serialize(e) for e in db["emotions"].find({"user_id": user_id})]
 
 # ---- Support Centers ----
 @app.post(f"{API_PREFIX}/supportcenters", status_code=201)
-def create_center(center: SupportCenter, _current_user: dict = Depends(get_current_user)):
+def create_center(center: SupportCenter, current_user: dict = Depends(get_current_user)):
+    registrar_atividade(current_user["id"], "criar_centro_apoio")
     return create(db["supportcenters"], center.dict())
 
 # ---- Assessments ----
 @app.post(f"{API_PREFIX}/assessments", status_code=201)
-def create_assessment(assessment: Assessment, _current_user: dict = Depends(get_current_user)):
+def create_assessment(assessment: Assessment, current_user: dict = Depends(get_current_user)):
+    registrar_atividade(current_user["id"], "criar_avaliacao")
     return create(db["assessments"], assessment.dict())
 
 @app.get(f"{API_PREFIX}/assessments/user/{{user_id}}")
 def user_assessments(user_id: str, current_user: dict = Depends(get_current_user)):
     if user_id != current_user["id"]:
         raise HTTPException(403, "Acesso negado")
+    registrar_atividade(current_user["id"], "listar_avaliacoes")
     return [serialize(a) for a in db["assessments"].find({"user_id": user_id})]
