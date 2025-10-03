@@ -89,7 +89,7 @@ class Assessment(BaseModel):
     avaliacao: str
     data: str
 
-# ---- CRUD Genérico ----
+# ---- CRUD ----
 def create(collection, data: dict):
     result = collection.insert_one(data)
     return {"id": str(result.inserted_id)}
