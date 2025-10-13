@@ -27,7 +27,7 @@ jobs:
       - name: Rodar testes
         run: |
             export PYTHONPATH=$PYTHONPATH:$(pwd)/src
-            export MONGO_URI="${{ secrets.MONGO_URI }}"  # URI real do Atlas
+            export MONGO_URI="${{ secrets.MONGO_URI }}"
             export SECRET_KEY="${{ secrets.SECRET_KEY }}"
             export ALGORITHM="HS256"
             export ACCESS_TOKEN_EXPIRE_MINUTES="60"
