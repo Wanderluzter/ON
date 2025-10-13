@@ -29,6 +29,9 @@ jobs:
       run: |
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src
         export MONGO_URI=${{ secrets.MONGO_URI }}
+        export SECRET_KEY =${{ secrets.SECRET_KEY }}
+        export ALGORITHM =${{ secrets.ALGORITHM }}
+        export ACCESS_TOKEN_EXPIRE_MINUTES =${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
         pytest -v tests/
 
     - name: Build Docker
