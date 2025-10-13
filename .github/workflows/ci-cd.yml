@@ -28,10 +28,10 @@ jobs:
 
       - name: Rodar testes
         run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
-          export MONGO_URI="mongodb+srv://usuario:senha@cluster0.mongodb.net/dbname"
-          export SECRET_KEY="dummysecret"
-          export ALGORITHM="HS256"
-          export ACCESS_TOKEN_EXPIRE_MINUTES="60"
-
-          pytest -v tests/
+              export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+              export MONGO_URI="mongomock://localhost"  # Dummy Mongo para testes CI
+              export SECRET_KEY="dummysecret"
+              export ALGORITHM="HS256"
+              export ACCESS_TOKEN_EXPIRE_MINUTES="60"
+              
+              pytest -v tests/
