@@ -1,6 +1,6 @@
 import mongomock
 from fastapi.testclient import TestClient
-from app.main import app
+from main import app
 
 app.db = mongomock.MongoClient()["emotional_tracker"]
 

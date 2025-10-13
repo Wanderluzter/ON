@@ -1,188 +1,78 @@
-# 🌱 Emotional Tracker API
 
-API RESTful para rastrear e organizar informações de bem-estar emocional, diários, emoções, centros de apoio e avaliações psicossociais.
+# Projeto - Emotional Tracker
 
----
+## Como executar localmente com Docker
 
-## 🚀 Tecnologias Utilizadas
+1. Clone o repositório do projeto:  
+   ```bash
+   git clone https://github.com/seu-usuario/emotional-tracker.git
+   ```  
 
-- [FastAPI](https://fastapi.tiangolo.com/) — framework web
-- [MongoDB Atlas](https://www.mongodb.com/atlas) — banco NoSQL
-- [PyMongo](https://pymongo.readthedocs.io/) — driver MongoDB
-- [Passlib (bcrypt)](https://passlib.readthedocs.io/) — hash de senhas
-- [Python-Jose](https://python-jose.readthedocs.io/) — autenticação JWT
-- [Decouple](https://pypi.org/project/python-decouple/) — variáveis de ambiente
+2. Entre na pasta do projeto:  
+   ```bash
+   cd emotional-tracker
+   ```  
 
----
+3. Copie o arquivo de exemplo de variáveis de ambiente:  
+   ```bash
+   cp .env.example .env
+   ```  
+   Ajuste as variáveis conforme necessário.
 
-## ⚙️ Instalação
+4. Suba os containers usando Docker Compose:  
+   ```bash
+   docker-compose up --build
+   ```  
 
-Clone o repositório e instale as dependências:
-
-```bash
-git clone https://github.com/seu-usuario/emotional-tracker-api.git
-cd emotional-tracker-api
-pip install -r requirements.txt
-```
-
----
-
-## 🔑 Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto com os seguintes valores:
-
-```env
-MONGO_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/
-SECRET_KEY=chave_secreta
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-```
+5. A aplicação estará disponível em:  
+   ```
+   http://localhost:8000
+   ```
 
 ---
 
-## ▶️ Executando a API
+## Pipeline CI/CD
 
-```bash
-uvicorn main:app --reload
-```
+- **Ferramenta utilizada:** GitHub Actions (pode ser adaptado para Jenkins, Azure DevOps ou CircleCI)  
+- **Etapas do pipeline:**  
+  1. Build automático da aplicação  
+  2. Execução de testes automatizados existentes (pytest ou outro framework)  
+  3. Deploy automático em **staging** (branch `staging`)  
+  4. Deploy automático em **produção** (branch `main`)  
 
-A API ficará disponível em:
-```
-http://127.0.0.1:8000
-```
-
-Documentação interativa:  
-- Swagger UI → `http://127.0.0.1:8000/docs`  
-- ReDoc → `http://127.0.0.1:8000/redoc`  
+- **Funcionamento:**  
+  - Ao dar push em `staging`, a aplicação é construída, testada e implantada automaticamente em um ambiente de testes.  
+  - Ao dar push em `main`, a aplicação é implantada em produção, garantindo que apenas código validado seja liberado.  
 
 ---
 
-## 📌 Endpoints da API
+## Containerização
 
-Base URL:
-```
-/api/v1
-```
-
-### 🔑 Autenticação
-- **POST** `/auth/register` → Registrar usuário
-- **POST** `/auth/token` → Login com `x-www-form-urlencoded`
-- **GET** `/me` → Perfil do usuário autenticado
-
-### 👤 Usuários
-- **GET** `/users` → Listar todos os usuários
-- **GET** `/users/{id}` → Buscar usuário por ID
-- **PUT** `/users/{id}` → Atualizar usuário
-- **DELETE** `/users/{id}` → Remover usuário
-
-### 📔 Diários
-- **POST** `/diaries` → Criar diário
-- **GET** `/diaries/user/{user_id}` → Listar diários do usuário
-
-### 😊 Emoções
-- **POST** `/emotions` → Criar emoção
-- **GET** `/emotions/user/{user_id}` → Listar emoções
-
-### 🏥 Centros de Apoio
-- **POST** `/supportcenters` → Criar centro de apoio
-
-### 📝 Avaliações
-- **POST** `/assessments` → Criar avaliação
-- **GET** `/assessments/user/{user_id}` → Listar avaliações
+- **Dockerfile:** define a imagem base da aplicação, instala dependências, copia o código e expõe a porta da API.  
+- **docker-compose.yml:** orquestra múltiplos serviços (ex: aplicação + banco de dados), configura volumes para persistência, variáveis de ambiente e rede interna entre os containers.  
+- **Estratégias adotadas:**  
+  - Persistência dos dados do banco usando volumes Docker  
+  - Variáveis de ambiente externas via `.env`  
+  - Separação de serviços para facilitar manutenção e escalabilidade  
 
 ---
 
-## 🗂️ Modelo de Dados (MongoDB)
+## Prints do funcionamento
 
-### `users`
-```json
-{
-  "_id": "ObjectId",
-  "nome": "string",
-  "email": "string",
-  "idade": "int",
-  "password_hash": "string",
-  "created_at": "datetime"
-}
-```
+Inclua aqui evidências visuais do projeto funcionando:  
+- Print do pipeline rodando (build, testes e deploy)  
+- Print do ambiente **staging**  
+- Print do ambiente **produção**  
 
-### `diaries`
-```json
-{
-  "_id": "ObjectId",
-  "user_id": "string",
-  "data": "YYYY-MM-DD",
-  "texto": "string"
-}
-```
-
-### `emotions`
-```json
-{
-  "_id": "ObjectId",
-  "user_id": "string",
-  "tipo": "string",
-  "intensidade": "int (1-10)"
-}
-```
-
-### `supportcenters`
-```json
-{
-  "_id": "ObjectId",
-  "nome": "string",
-  "telefone": "string",
-  "endereco": "string"
-}
-```
-
-### `assessments`
-```json
-{
-  "_id": "ObjectId",
-  "user_id": "string",
-  "avaliacao": "string",
-  "data": "YYYY-MM-DD"
-}
-```
-
-### `logs`
-```json
-{
-  "_id": "ObjectId",
-  "user_id": "string",
-  "acao": "string",
-  "detalhes": "string",
-  "timestamp": "datetime"
-}
-```
+*(Você pode usar links ou imagens locais)*
 
 ---
 
-## 🔒 Autenticação e Autorização
+## Tecnologias utilizadas
 
-- **JWT** assinado com `SECRET_KEY` e `HS256`
-- Expiração configurável (default: 60 min)
-- Usuários só acessam seus próprios dados (`diaries`, `emotions`, `assessments`)
-- Todas as ações são registradas em **logs de auditoria**
-
----
-
-## 🧪 Exemplos de Uso (cURL)
-
-### Registrar usuário
-```bash
-curl -X POST http://127.0.0.1:8000/api/v1/auth/register   -H "Content-Type: application/json"   -d '{"nome":"Leo","email":"leo@email.com","idade":25,"senha":"senha123"}'
-```
-
-### Login
-```bash
-curl -X POST http://127.0.0.1:8000/api/v1/auth/token   -H "Content-Type: application/x-www-form-urlencoded"   -d "username=leo@email.com&password=senha123"
-```
-
-### Obter perfil
-```bash
-curl -X GET http://127.0.0.1:8000/api/v1/me   -H "Authorization: Bearer <TOKEN>"
-```
-
----
+- Python 3.x  
+- FastAPI  
+- MongoDB  
+- Docker / Docker Compose  
+- GitHub Actions (ou outra ferramenta de CI/CD)  
+- Pytest (ou outro framework de testes)  
