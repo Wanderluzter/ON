@@ -23,15 +23,13 @@ jobs:
         run: |
          python -m pip install --upgrade pip
          pip install -r requirements.txt
-         pip install pytest pytest-asyncio mongomock
-
 
       - name: Rodar testes
         run: |
               export PYTHONPATH=$PYTHONPATH:$(pwd)/src
-              export MONGO_URI="mongomock://localhost"  # Dummy Mongo para testes CI
+              export MONGO_URI="mongodb://localhost:27017/dummydb"
               export SECRET_KEY="dummysecret"
               export ALGORITHM="HS256"
               export ACCESS_TOKEN_EXPIRE_MINUTES="60"
-              
+
               pytest -v tests/
