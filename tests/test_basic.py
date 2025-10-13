@@ -1,17 +1,21 @@
-import mongomock
 from fastapi.testclient import TestClient
-from main import app
-
-app.db = mongomock.MongoClient()["emotional_tracker"]
+from src.main import app
 
 client = TestClient(app)
 
 def test_register_user():
-    response = client.post("/api/v1/auth/register", json={
+    payload = {
         "nome": "Leo",
         "email": "leo@test.com",
         "idade": 25,
         "senha": "123456"
-    })
+    }
+    
+    response = client.post("/api/v1/auth/register", json=payload)
+    
+    # Testa se criou corretamente
     assert response.status_code == 201
-    assert "id" in response.json()
+    data = response.json()
+    assert "id" in data
+    assert data["nome"] == payload["nome"]
+    assert data["email"] == payload["email"]
