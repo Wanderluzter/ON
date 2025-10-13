@@ -22,12 +22,11 @@ client = pymongo.MongoClient(MONGO_URI)
 db = client["emotional_tracker"]
 
 # ---- Função de dependência do DB ----
-def get_db(test_client: Optional[MongoClient] = None):
+def get_db():
     """
     Retorna o banco de dados real ou o cliente injetado (usado em testes com mongomock).
     """
-    if test_client is not None:
-        return test_client["emotional_tracker"]
+    db = client["emotional_tracker"]
     return db
 
 # ---- App ----

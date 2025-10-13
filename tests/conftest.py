@@ -1,19 +1,21 @@
-# tests/conftest.py
 import pytest
-import mongomock
-from src.main import app, get_db
 from fastapi.testclient import TestClient
+from src.main import app, get_db
+import mongomock
 
-@pytest.fixture(scope="function")
-def mock_db():
+# Cria um client de banco falso
+@pytest.fixture
+def test_db():
     client = mongomock.MongoClient()
-    db = client["emotional_tracker"]
-    yield db
+    return client["emotional_tracker"]
 
-@pytest.fixture(scope="function")
-def client(mock_db):
-    # Sobrescreve o get_db para retornar o mock
-    app.dependency_overrides[get_db] = lambda: mock_db
-    with TestClient(app) as c:
-        yield c
+# Substitui a dependência original do FastAPI pelo mock
+@pytest.fixture(autouse=True)
+def override_get_db(test_db):
+    app.dependency_overrides[get_db] = lambda: test_db
+    yield
     app.dependency_overrides.clear()
+
+@pytest.fixture
+def client():
+    return TestClient(app)
