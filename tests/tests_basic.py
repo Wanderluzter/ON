@@ -1,5 +1,9 @@
+import mongomock
 from fastapi.testclient import TestClient
 from app.main import app
+
+# Substitui o client real por um fake
+app.db = mongomock.MongoClient()["emotional_tracker"]
 
 client = TestClient(app)
 
