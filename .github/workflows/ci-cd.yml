@@ -1,0 +1,6 @@
+      - name: Run tests
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          ACCESS_TOKEN_EXPIRE_MINUTES: 60
+        run: pytest
